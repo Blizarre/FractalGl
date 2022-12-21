@@ -8,7 +8,6 @@ use std::sync::Arc;
 
 fn main() {
     let options = eframe::NativeOptions {
-        initial_window_size: Some(egui::vec2(350.0, 380.0)),
         multisampling: 8,
         renderer: eframe::Renderer::Glow,
         ..Default::default()
@@ -31,7 +30,6 @@ struct MyApp {
     fractal: Arc<Mutex<Fractal>>,
     pos: Pos,
     zoom: f32,
-    selected: bool,
 }
 
 impl MyApp {
@@ -44,30 +42,27 @@ impl MyApp {
             fractal: Arc::new(Mutex::new(Fractal::new(gl))),
             pos: Pos { x: 0.0, y: 0.0 },
             zoom: 3000.0,
-            selected: true,
         }
     }
 }
 
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.horizontal(|ui| {
-                ui.label("Zoom level");
-                ui.add(Slider::new(&mut self.zoom, 0.0..=10000.0).logarithmic(true))
-            });
-            ui.toggle_value(&mut self.selected, "Yes or Now?");
-            if self.selected {
-                egui::Frame::canvas(ui.style()).show(ui, |ui| {
-                    self.custom_painting(ui);
+        egui::SidePanel::left("Settings").show(ctx, |ui| {
+            ui.vertical(|ui| {
+                ui.horizontal(|ui| {
+                    ui.label("Zoom level");
+                    ui.add(Slider::new(&mut self.zoom, 0.0..=10000.0).logarithmic(true))
                 });
-
-                ui.label("Drag to rotate!");
-            }
-
-            if ui.button("Exit").clicked() {
-                std::process::exit(0);
-            }
+                if ui.button("Exit").clicked() {
+                    std::process::exit(0);
+                }
+            });
+        });
+        egui::CentralPanel::default().show(ctx, |ui| {
+            egui::Frame::canvas(ui.style()).show(ui, |ui| {
+                self.custom_painting(ui);
+            });
         });
     }
 
