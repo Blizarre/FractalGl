@@ -68,8 +68,7 @@ impl eframe::App for MyApp {
 
 impl MyApp {
     fn custom_painting(&mut self, ui: &mut egui::Ui) {
-        let (rect, response) =
-            ui.allocate_exact_size(egui::Vec2::splat(300.0), egui::Sense::drag());
+        let (rect, response) = ui.allocate_exact_size(ui.available_size(), egui::Sense::drag());
 
         self.angle += response.drag_delta().x * 0.01;
 
@@ -100,14 +99,15 @@ impl Fractal {
 
             let (vertex_shader_source, fragment_shader_source) = (
                 r#"
-                attribute vec2 a_position;
-
-                uniform mat4 uMVMatrix;
-                uniform mat4 uPMatrix;
-
-                void main(void) {
-                    gl_Position = vec4(a_position, 0, 1);
-                }"#,
+                const vec2 verts[3] = vec2[3](
+                    vec2(0.0, 1.0),
+                    vec2(-1.0, -1.0),
+                    vec2(1.0, -1.0)
+                );
+                void main() {
+                    gl_Position = vec4(verts[gl_VertexID], 0.0, 1.0);
+                }
+                "#,
                 r#"
                 precision highp float;
                 uniform vec2 u_fractalPosition;
@@ -176,9 +176,7 @@ impl Fractal {
                     return log(value);
 
                 }
-
-                layout(location = 0) out vec4 diffuseColor;
-
+                out vec4 out_color;
                 void main(void)
                 {
                     vec2 z = vec2( (gl_FragCoord.x/u_fractalZoom - u_fractalPosition.x), (gl_FragCoord.y/u_fractalZoom - u_fractalPosition.y) );
@@ -189,8 +187,7 @@ impl Fractal {
                     else
                         value = computeLowQuality(z);
 
-                    diffuseColor =  vec4(vec3(0.8, 0.75, 1.0), 1.0);
-//                    gl_FragColor =  vec4( u_brightness + u_contrast * vec3(value, value, value) * vec3(0.8, 0.75, 1.0), 1.0);
+                    out_color =  vec4( u_brightness + u_contrast * vec3(value, value, value) * vec3(0.8, 0.75, 1.0), 1.0);
                 }
                 "#,
             );
