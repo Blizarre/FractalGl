@@ -1,7 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 #![allow(unsafe_code)]
 
-use eframe::egui;
+use eframe::egui::{self, Slider};
 
 use egui::mutex::Mutex;
 use std::sync::Arc;
@@ -20,10 +20,17 @@ fn main() {
     );
 }
 
+#[derive(Clone, Copy)]
+struct Pos {
+    x: f32,
+    y: f32,
+}
+
 struct MyApp {
     /// Behind an `Arc<Mutex<…>>` so we can pass it to [`egui::PaintCallback`] and paint later.
     fractal: Arc<Mutex<Fractal>>,
-    angle: f32,
+    pos: Pos,
+    zoom: f32,
     selected: bool,
 }
 
@@ -35,7 +42,8 @@ impl MyApp {
             .expect("You need to run eframe with the glow backend");
         Self {
             fractal: Arc::new(Mutex::new(Fractal::new(gl))),
-            angle: 0.0,
+            pos: Pos { x: 0.0, y: 0.0 },
+            zoom: 3000.0,
             selected: true,
         }
     }
@@ -44,6 +52,10 @@ impl MyApp {
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
+            ui.horizontal(|ui| {
+                ui.label("Zoom level");
+                ui.add(Slider::new(&mut self.zoom, 0.0..=10000.0).logarithmic(true))
+            });
             ui.toggle_value(&mut self.selected, "Yes or Now?");
             if self.selected {
                 egui::Frame::canvas(ui.style()).show(ui, |ui| {
@@ -70,16 +82,18 @@ impl MyApp {
     fn custom_painting(&mut self, ui: &mut egui::Ui) {
         let (rect, response) = ui.allocate_exact_size(ui.available_size(), egui::Sense::drag());
 
-        self.angle += response.drag_delta().x * 0.01;
+        self.pos.x += response.drag_delta().x * 0.01;
+        self.pos.y -= response.drag_delta().y * 0.01;
 
         // Clone locals so we can move them into the paint callback:
-        let angle = self.angle;
+        let pos = self.pos;
+        let zoom = self.zoom;
         let fractal = self.fractal.clone();
 
         let callback = egui::PaintCallback {
             rect,
             callback: std::sync::Arc::new(egui_glow::CallbackFn::new(move |_info, painter| {
-                fractal.lock().paint(painter.gl(), angle);
+                fractal.lock().paint(painter.gl(), zoom, pos);
             })),
         };
         ui.painter().add(callback);
@@ -245,7 +259,7 @@ impl Fractal {
         }
     }
 
-    fn paint(&self, gl: &glow::Context, angle: f32) {
+    fn paint(&self, gl: &glow::Context, zoom: f32, pos: Pos) {
         use glow::HasContext as _;
         unsafe {
             gl.use_program(Some(self.program));
@@ -256,7 +270,7 @@ impl Fractal {
             gl.uniform_1_f32(
                 gl.get_uniform_location(self.program, "u_fractalZoom")
                     .as_ref(),
-                4913.0,
+                zoom,
             );
 
             gl.uniform_1_f32(
@@ -277,11 +291,7 @@ impl Fractal {
             );
 
             let u_fractal_position = gl.get_uniform_location(self.program, "u_fractalPosition");
-            gl.uniform_2_f32(
-                u_fractal_position.as_ref(),
-                -1.071142577614754,
-                0.005293330282132441,
-            );
+            gl.uniform_2_f32(u_fractal_position.as_ref(), pos.x, pos.y);
 
             gl.bind_vertex_array(Some(self.vertex_array));
             gl.draw_arrays(glow::TRIANGLES, 0, 3);
