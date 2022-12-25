@@ -1,4 +1,5 @@
-use eframe::egui::{self, Slider, Ui};
+use eframe::egui::{self, PointerButton, Slider, Ui};
+use log::info;
 
 use egui::mutex::Mutex;
 use std::{ops::RangeInclusive, sync::Arc};
@@ -101,10 +102,46 @@ impl eframe::App for MyApp {
 
 impl MyApp {
     fn custom_painting(&mut self, ui: &mut egui::Ui) {
-        let (rect, response) = ui.allocate_exact_size(ui.available_size(), egui::Sense::drag());
+        let (rect, response) =
+            ui.allocate_exact_size(ui.available_size(), egui::Sense::click_and_drag());
 
-        self.data.pos.x += response.drag_delta().x * 0.01;
-        self.data.pos.y -= response.drag_delta().y * 0.01;
+        if response.double_clicked_by(PointerButton::Primary) {
+            let old_zoom_level = self.data.zoom;
+            self.data.zoom *= 1.2;
+            info!(
+                "Zoom level change: {} -> {}",
+                old_zoom_level, self.data.zoom
+            );
+        } else if response.clicked_by(PointerButton::Primary) {
+            let pointer_pos = response.interact_pointer_pos().expect("Non mais quoi....");
+            let new_center_in_screen_space =
+                (pointer_pos - rect.left_top()) * response.ctx.pixels_per_point();
+            info!(
+                "[click] Move x={:05.2}, y={:05.2} to screen center",
+                new_center_in_screen_space.x, new_center_in_screen_space.y
+            );
+            self.data.pos.x += (response.ctx.pixels_per_point() * rect.width() * 0.5
+                - new_center_in_screen_space.x)
+                / self.data.zoom;
+            self.data.pos.y -= (response.ctx.pixels_per_point() * rect.height() * 0.5
+                - new_center_in_screen_space.y)
+                / self.data.zoom;
+        } else if response.double_clicked_by(PointerButton::Secondary) {
+            let old_zoom_level = self.data.zoom;
+            self.data.zoom /= 1.2;
+            info!(
+                "Zoom level change: {} -> {}",
+                old_zoom_level, self.data.zoom
+            );
+        }
+
+        if response.dragged() {
+            let drag_in_gl_space = response.drag_delta() * response.ctx.pixels_per_point();
+            info!("Dragged: {:?} pixels ", drag_in_gl_space);
+
+            self.data.pos.x += drag_in_gl_space.x / self.data.zoom;
+            self.data.pos.y -= drag_in_gl_space.y / self.data.zoom;
+        }
 
         // Clone locals so we can move them into the paint callback:
         let data = self.data;
