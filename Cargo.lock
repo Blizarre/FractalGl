@@ -740,6 +740,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "fractal_gl"
+version = "0.1.0"
+dependencies = [
+ "eframe",
+ "egui_glow",
+ "glow",
+ "log",
+ "simple_logger",
+]
+
+[[package]]
 name = "freetype-rs"
 version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -844,17 +855,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "20c33975a6c9d49d72c8f032a60079bf8df536954fbf9e4cee90396ace815c57"
 dependencies = [
  "gl_generator",
-]
-
-[[package]]
-name = "gui_test"
-version = "0.1.0"
-dependencies = [
- "eframe",
- "egui_glow",
- "glow",
- "log",
- "simple_logger",
 ]
 
 [[package]]

@@ -9,13 +9,13 @@ use crate::Fractal;
 mod state;
 pub use state::{Pos, State};
 
-pub struct MyApp {
+pub struct FractalGl {
     /// Behind an `Arc<Mutex<…>>` so we can pass it to [`egui::PaintCallback`] and paint later.
     fractal: Arc<Mutex<Fractal>>,
     data: State,
 }
 
-impl MyApp {
+impl FractalGl {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let gl = cc
             .gl
@@ -28,7 +28,7 @@ impl MyApp {
     }
 }
 
-impl eframe::App for MyApp {
+impl eframe::App for FractalGl {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::SidePanel::left("Settings").show(ctx, |ui| {
             ui.vertical(|ui| {
@@ -63,7 +63,7 @@ impl eframe::App for MyApp {
     }
 }
 
-impl MyApp {
+impl FractalGl {
     fn custom_painting(&mut self, ui: &mut egui::Ui) {
         let (rect, response) =
             ui.allocate_exact_size(ui.available_size(), egui::Sense::click_and_drag());
