@@ -6,11 +6,8 @@ use std::{ops::RangeInclusive, sync::Arc};
 
 use crate::Fractal;
 
-#[derive(Clone, Copy, Debug)]
-pub struct Pos {
-    pub x: f32,
-    pub y: f32,
-}
+mod state;
+pub use state::{Pos, State};
 
 pub struct MyApp {
     /// Behind an `Arc<Mutex<…>>` so we can pass it to [`egui::PaintCallback`] and paint later.
@@ -18,26 +15,6 @@ pub struct MyApp {
     data: State,
 }
 
-#[derive(Clone, Copy, Debug)]
-pub struct State {
-    pub pos: Pos,
-    pub c_julia: Pos,
-    pub zoom: f32,
-    pub contrast: f32,
-    pub brightness: f32,
-}
-
-impl State {
-    fn new() -> State {
-        State {
-            pos: Pos { x: 0.0, y: 0.0 },
-            c_julia: Pos { x: -0.76, y: -0.08 },
-            zoom: 3000.0,
-            contrast: 0.3,
-            brightness: -0.73,
-        }
-    }
-}
 impl MyApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let gl = cc
@@ -49,20 +26,6 @@ impl MyApp {
             data: State::new(),
         }
     }
-}
-
-fn add_slider<'a>(
-    ui: &mut Ui,
-    label: &str,
-    value: &'a mut f32,
-    range: RangeInclusive<f32>,
-    log: bool,
-) {
-    let slider = Slider::new(value, range).logarithmic(log);
-    ui.horizontal(|ui| {
-        ui.label(label);
-        ui.add(slider)
-    });
 }
 
 impl eframe::App for MyApp {
@@ -113,19 +76,21 @@ impl MyApp {
                 old_zoom_level, self.data.zoom
             );
         } else if response.clicked_by(PointerButton::Primary) {
-            let pointer_pos = response.interact_pointer_pos().expect("Non mais quoi....");
-            let new_center_in_screen_space =
-                (pointer_pos - rect.left_top()) * response.ctx.pixels_per_point();
-            info!(
-                "[click] Move x={:05.2}, y={:05.2} to screen center",
-                new_center_in_screen_space.x, new_center_in_screen_space.y
+            let pixels_per_point = ui.ctx().pixels_per_point();
+
+            let new_center_screen = Pos::from_screen_space(
+                pixels_per_point,
+                response.interact_pointer_pos().expect("Non mais quoi...."),
             );
-            self.data.pos.x += (response.ctx.pixels_per_point() * rect.width() * 0.5
-                - new_center_in_screen_space.x)
-                / self.data.zoom;
-            self.data.pos.y -= (response.ctx.pixels_per_point() * rect.height() * 0.5
-                - new_center_in_screen_space.y)
-                / self.data.zoom;
+            let current_center = Pos::from_screen_space(pixels_per_point, rect.center());
+            let diff_gl_space = (current_center - new_center_screen) / self.data.zoom;
+
+            info!(
+                "new_center_screen: {:?}, current_center: {:?}, diff gl space: {:?}",
+                new_center_screen, current_center, diff_gl_space
+            );
+            self.data.pos.x += diff_gl_space.x;
+            self.data.pos.y -= diff_gl_space.y;
         } else if response.double_clicked_by(PointerButton::Secondary) {
             let old_zoom_level = self.data.zoom;
             self.data.zoom /= 1.2;
@@ -155,4 +120,18 @@ impl MyApp {
         };
         ui.painter().add(callback);
     }
+}
+
+fn add_slider<'a>(
+    ui: &mut Ui,
+    label: &str,
+    value: &'a mut f32,
+    range: RangeInclusive<f32>,
+    log: bool,
+) {
+    let slider = Slider::new(value, range).logarithmic(log);
+    ui.horizontal(|ui| {
+        ui.label(label);
+        ui.add(slider)
+    });
 }

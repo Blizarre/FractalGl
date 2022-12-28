@@ -1,7 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 #![allow(unsafe_code)]
 
-mod fractal_app;
+mod app;
 
 fn main() {
     simple_logger::init_with_level(log::Level::Info).unwrap();
@@ -13,7 +13,7 @@ fn main() {
     eframe::run_native(
         "Custom 3D painting in eframe using glow",
         options,
-        Box::new(|cc| Box::new(fractal_app::MyApp::new(cc))),
+        Box::new(|cc| Box::new(app::MyApp::new(cc))),
     );
 }
 
@@ -179,7 +179,7 @@ impl Fractal {
         }
     }
 
-    fn paint(&self, gl: &glow::Context, state: fractal_app::State) {
+    fn paint(&self, gl: &glow::Context, state: app::State) {
         use glow::HasContext as _;
         unsafe {
             gl.use_program(Some(self.program));
