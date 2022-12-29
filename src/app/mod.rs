@@ -1,8 +1,8 @@
-use eframe::egui::{self, PointerButton, Slider, Ui};
+use eframe::egui::{self, PointerButton, Slider};
 use log::info;
 
 use egui::mutex::Mutex;
-use std::{ops::RangeInclusive, sync::Arc};
+use std::sync::Arc;
 
 use crate::Fractal;
 
@@ -32,17 +32,17 @@ impl eframe::App for FractalGl {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::SidePanel::left("Settings").show(ctx, |ui| {
             ui.vertical(|ui| {
-                add_slider(ui, "Zoom level", &mut self.data.zoom, 0.0..=10000.0, true);
-                add_slider(ui, "Julia 1", &mut self.data.c_julia.x, -1.0..=1.0, false);
-                add_slider(ui, "Julia 2", &mut self.data.c_julia.y, -1.0..=1.0, false);
-                add_slider(ui, "Contrast", &mut self.data.contrast, -1.0..=1.0, false);
-                add_slider(
-                    ui,
-                    "Brightness",
-                    &mut self.data.brightness,
-                    -2.0..=2.0,
-                    false,
+                ui.add(
+                    Slider::new(&mut self.data.zoom, 1.0..=5000.0)
+                        .logarithmic(true)
+                        .text("Zoom"),
                 );
+
+                ui.add(Slider::new(&mut self.data.c_julia.x, -1.0..=1.0).text("Julia 1"));
+                ui.add(Slider::new(&mut self.data.c_julia.y, -1.0..=1.0).text("Julia 2"));
+
+                ui.add(Slider::new(&mut self.data.contrast, -1.0..=1.0).text("Contrast"));
+                ui.add(Slider::new(&mut self.data.brightness, -2.0..=2.0).text("Brightness"));
 
                 if ui.button("Exit").clicked() {
                     std::process::exit(0);
@@ -120,18 +120,4 @@ impl FractalGl {
         };
         ui.painter().add(callback);
     }
-}
-
-fn add_slider<'a>(
-    ui: &mut Ui,
-    label: &str,
-    value: &'a mut f32,
-    range: RangeInclusive<f32>,
-    log: bool,
-) {
-    let slider = Slider::new(value, range).logarithmic(log);
-    ui.horizontal(|ui| {
-        ui.label(label);
-        ui.add(slider)
-    });
 }
