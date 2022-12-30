@@ -32,7 +32,7 @@ impl<'a> ClickPanel<'a> {
 impl<'a> Widget for ClickPanel<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
         let square_size = Vec2::new(ui.available_width(), ui.available_width()) * 0.9;
-        let response = Frame::canvas(ui.style())
+        Frame::canvas(ui.style())
             .show(ui, |ui| {
                 let (rect, resp) = ui.allocate_exact_size(square_size, Sense::drag());
                 if resp.dragged() {
@@ -46,8 +46,6 @@ impl<'a> Widget for ClickPanel<'a> {
                     *self.y += values_delta.y;
                 }
             })
-            .response;
-
-        response
+            .response
     }
 }
