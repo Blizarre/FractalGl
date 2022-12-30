@@ -9,6 +9,9 @@ use crate::Fractal;
 mod state;
 pub use state::{Pos, State};
 
+mod clickpanel;
+use clickpanel::ClickPanel;
+
 pub struct FractalGl {
     /// Behind an `Arc<Mutex<…>>` so we can pass it to [`egui::PaintCallback`] and paint later.
     fractal: Arc<Mutex<Fractal>>,
@@ -38,11 +41,38 @@ impl eframe::App for FractalGl {
                         .text("Zoom"),
                 );
 
-                ui.add(Slider::new(&mut self.data.c_julia.x, -1.0..=1.0).text("Julia 1"));
-                ui.add(Slider::new(&mut self.data.c_julia.y, -1.0..=1.0).text("Julia 2"));
+                ui.separator();
 
-                ui.add(Slider::new(&mut self.data.contrast, -1.0..=1.0).text("Contrast"));
-                ui.add(Slider::new(&mut self.data.brightness, -2.0..=2.0).text("Brightness"));
+                ui.add(ClickPanel::new(
+                    &mut self.data.c_julia.x,
+                    &mut self.data.c_julia.y,
+                    -0.2..=0.2,
+                    -0.2..=0.2,
+                ));
+
+                ui.add(
+                    Slider::new(&mut self.data.c_julia.x, -1.0..=1.0)
+                        .text("Julia 1")
+                        .clamp_to_range(false),
+                );
+                ui.add(
+                    Slider::new(&mut self.data.c_julia.y, -1.0..=1.0)
+                        .text("Julia 2")
+                        .clamp_to_range(false),
+                );
+
+                ui.separator();
+
+                ui.add(
+                    Slider::new(&mut self.data.contrast, -1.0..=1.0)
+                        .text("Contrast")
+                        .clamp_to_range(false),
+                );
+                ui.add(
+                    Slider::new(&mut self.data.brightness, -2.0..=2.0)
+                        .text("Brightness")
+                        .clamp_to_range(false),
+                );
 
                 if ui.button("Exit").clicked() {
                     std::process::exit(0);
@@ -100,7 +130,7 @@ impl FractalGl {
             );
         }
 
-        if response.dragged() {
+        if response.dragged() && response.drag_delta().length_sq() > 0.0 {
             let drag_in_gl_space = response.drag_delta() * response.ctx.pixels_per_point();
             info!("Dragged: {:?} pixels ", drag_in_gl_space);
 
