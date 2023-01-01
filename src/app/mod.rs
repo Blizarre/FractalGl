@@ -13,7 +13,7 @@ use clickpanel::ClickPanel;
 pub struct FractalGl {
     /// Behind an `Arc<Mutex<…>>` so we can pass it to [`egui::PaintCallback`] and paint later.
     fractal: Arc<Mutex<Fractal>>,
-    data: State,
+    state: State,
 }
 
 impl FractalGl {
@@ -24,7 +24,7 @@ impl FractalGl {
             .expect("You need to run eframe with the glow backend");
         Self {
             fractal: Arc::new(Mutex::new(Fractal::new(gl))),
-            data: State::new(),
+            state: State::new(),
         }
     }
 }
@@ -34,7 +34,7 @@ impl eframe::App for FractalGl {
         egui::SidePanel::left("Settings").show(ctx, |ui| {
             ui.vertical(|ui| {
                 ui.add(
-                    Slider::new(&mut self.data.zoom, 1.0..=5000.0)
+                    Slider::new(&mut self.state.zoom, 1.0..=5000.0)
                         .logarithmic(true)
                         .text("Zoom"),
                 );
@@ -42,19 +42,19 @@ impl eframe::App for FractalGl {
                 ui.separator();
 
                 ui.add(ClickPanel::new(
-                    &mut self.data.c_julia.x,
-                    &mut self.data.c_julia.y,
+                    &mut self.state.c_julia.x,
+                    &mut self.state.c_julia.y,
                     -0.2..=0.2,
                     -0.2..=0.2,
                 ));
 
                 ui.add(
-                    Slider::new(&mut self.data.c_julia.x, -1.0..=1.0)
+                    Slider::new(&mut self.state.c_julia.x, -1.0..=1.0)
                         .text("Julia 1")
                         .clamp_to_range(false),
                 );
                 ui.add(
-                    Slider::new(&mut self.data.c_julia.y, -1.0..=1.0)
+                    Slider::new(&mut self.state.c_julia.y, -1.0..=1.0)
                         .text("Julia 2")
                         .clamp_to_range(false),
                 );
@@ -62,12 +62,12 @@ impl eframe::App for FractalGl {
                 ui.separator();
 
                 ui.add(
-                    Slider::new(&mut self.data.contrast, -1.0..=1.0)
+                    Slider::new(&mut self.state.contrast, -1.0..=1.0)
                         .text("Contrast")
                         .clamp_to_range(false),
                 );
                 ui.add(
-                    Slider::new(&mut self.data.brightness, -2.0..=2.0)
+                    Slider::new(&mut self.state.brightness, -2.0..=2.0)
                         .text("Brightness")
                         .clamp_to_range(false),
                 );
@@ -97,11 +97,11 @@ impl FractalGl {
             ui.allocate_exact_size(ui.available_size(), egui::Sense::click_and_drag());
 
         if response.double_clicked_by(PointerButton::Primary) {
-            let old_zoom_level = self.data.zoom;
-            self.data.zoom *= 1.2;
+            let old_zoom_level = self.state.zoom;
+            self.state.zoom *= 1.2;
             info!(
                 "Zoom level change: {} -> {}",
-                old_zoom_level, self.data.zoom
+                old_zoom_level, self.state.zoom
             );
         } else if response.clicked_by(PointerButton::Primary) {
             let pixels_per_point = ui.ctx().pixels_per_point();
@@ -111,20 +111,20 @@ impl FractalGl {
                 response.interact_pointer_pos().expect("Non mais quoi...."),
             );
             let current_center = Pos::from_screen_space(pixels_per_point, rect.center());
-            let diff_gl_space = (current_center - new_center_screen) / self.data.zoom;
+            let diff_gl_space = (current_center - new_center_screen) / self.state.zoom;
 
             info!(
                 "new_center_screen: {:?}, current_center: {:?}, diff gl space: {:?}",
                 new_center_screen, current_center, diff_gl_space
             );
-            self.data.pos.x += diff_gl_space.x;
-            self.data.pos.y -= diff_gl_space.y;
+            self.state.pos.x += diff_gl_space.x;
+            self.state.pos.y -= diff_gl_space.y;
         } else if response.double_clicked_by(PointerButton::Secondary) {
-            let old_zoom_level = self.data.zoom;
-            self.data.zoom /= 1.2;
+            let old_zoom_level = self.state.zoom;
+            self.state.zoom /= 1.2;
             info!(
                 "Zoom level change: {} -> {}",
-                old_zoom_level, self.data.zoom
+                old_zoom_level, self.state.zoom
             );
         }
 
@@ -132,12 +132,12 @@ impl FractalGl {
             let drag_in_gl_space = response.drag_delta() * response.ctx.pixels_per_point();
             info!("Dragged: {:?} pixels ", drag_in_gl_space);
 
-            self.data.pos.x += drag_in_gl_space.x / self.data.zoom;
-            self.data.pos.y -= drag_in_gl_space.y / self.data.zoom;
+            self.state.pos.x += drag_in_gl_space.x / self.state.zoom;
+            self.state.pos.y -= drag_in_gl_space.y / self.state.zoom;
         }
 
         // Clone locals so we can move them into the paint callback:
-        let data = self.data;
+        let data = self.state;
         let fractal = self.fractal.clone();
 
         let callback = egui::PaintCallback {
