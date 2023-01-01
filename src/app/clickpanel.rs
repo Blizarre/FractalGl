@@ -2,7 +2,7 @@ use log::info;
 use std::ops::RangeInclusive;
 
 use eframe::{
-    egui::{Frame, Layout, Response, Sense, Ui, Widget},
+    egui::{Frame, Label, Layout, Response, Sense, Ui, Widget},
     emath::Align,
     epaint::Vec2,
 };
@@ -37,10 +37,13 @@ impl<'a> Widget for ClickPanel<'a> {
         Frame::canvas(ui.style())
             .show(ui, |ui| {
                 ui.with_layout(Layout::top_down(Align::Center), |ui| {
-                    let (rect, resp) = ui.allocate_exact_size(square_size, Sense::drag());
+                    let resp = ui.add_sized(
+                        square_size,
+                        Label::new("Drag to fine tune").sense(Sense::drag()),
+                    );
                     if resp.dragged() {
                         let points_delta = resp.drag_delta();
-                        let values_delta = (points_delta / rect.width()) * self.range;
+                        let values_delta = (points_delta / resp.rect.width()) * self.range;
                         info!(
                             "ClickPanel dragged {:?} points, change to x,y {:?}",
                             points_delta, values_delta

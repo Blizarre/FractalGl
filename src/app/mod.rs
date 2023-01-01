@@ -41,36 +41,52 @@ impl eframe::App for FractalGl {
 
                 ui.separator();
 
-                ui.add(ClickPanel::new(
-                    &mut self.state.c_julia.x,
-                    &mut self.state.c_julia.y,
-                    -0.2..=0.2,
-                    -0.2..=0.2,
-                ));
+                ui.toggle_value(&mut self.state.julia_expanded, "Julia parameters");
 
-                ui.add(
-                    Slider::new(&mut self.state.c_julia.x, -1.0..=1.0)
-                        .text("Julia 1")
-                        .clamp_to_range(false),
-                );
-                ui.add(
-                    Slider::new(&mut self.state.c_julia.y, -1.0..=1.0)
-                        .text("Julia 2")
-                        .clamp_to_range(false),
-                );
+                if self.state.julia_expanded {
+                    ui.add(ClickPanel::new(
+                        &mut self.state.c_julia.x,
+                        &mut self.state.c_julia.y,
+                        -0.2..=0.2,
+                        -0.2..=0.2,
+                    ));
+
+                    ui.add(
+                        Slider::new(&mut self.state.c_julia.x, -1.0..=1.0)
+                            .text("Julia 1")
+                            .clamp_to_range(false),
+                    );
+                    ui.add(
+                        Slider::new(&mut self.state.c_julia.y, -1.0..=1.0)
+                            .text("Julia 2")
+                            .clamp_to_range(false),
+                    );
+                }
 
                 ui.separator();
 
-                ui.add(
-                    Slider::new(&mut self.state.contrast, -1.0..=1.0)
-                        .text("Contrast")
-                        .clamp_to_range(false),
-                );
-                ui.add(
-                    Slider::new(&mut self.state.brightness, -2.0..=2.0)
-                        .text("Brightness")
-                        .clamp_to_range(false),
-                );
+                ui.toggle_value(&mut self.state.color_expanded, "Color parameters");
+
+                if self.state.color_expanded {
+                    ui.add(ClickPanel::new(
+                        &mut self.state.contrast,
+                        &mut self.state.brightness,
+                        -1.0..=1.0,
+                        -2.0..=2.0,
+                    ));
+
+                    ui.add(
+                        Slider::new(&mut self.state.contrast, -1.0..=1.0)
+                            .text("Contrast")
+                            .clamp_to_range(false),
+                    );
+                    ui.add(
+                        Slider::new(&mut self.state.brightness, -2.0..=2.0)
+                            .text("Brightness")
+                            .clamp_to_range(false),
+                    );
+                }
+                ui.separator();
 
                 if ui.button("Exit").clicked() {
                     std::process::exit(0);
