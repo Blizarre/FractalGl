@@ -13,29 +13,29 @@ pub use pos::Pos;
 mod drag_panel;
 use drag_panel::DragPanel;
 
-mod fractal;
-use fractal::Fractal;
+mod fractal_gl;
+use fractal_gl::FractalGl;
 
-pub struct FractalGl {
+pub struct FractalApp {
     /// Behind an `Arc<Mutex<…>>` so we can pass it to [`egui::PaintCallback`] and paint later.
-    fractal: Arc<Mutex<Fractal>>,
+    fractal: Arc<Mutex<FractalGl>>,
     state: State,
 }
 
-impl FractalGl {
+impl FractalApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         let gl = cc
             .gl
             .as_ref()
             .expect("You need to run eframe with the glow backend");
         Self {
-            fractal: Arc::new(Mutex::new(Fractal::new(gl))),
+            fractal: Arc::new(Mutex::new(FractalGl::new(gl))),
             state: State::new(),
         }
     }
 }
 
-impl eframe::App for FractalGl {
+impl eframe::App for FractalApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::SidePanel::left("Settings").show(ctx, |ui| {
             ui.vertical(|ui| {
@@ -113,7 +113,7 @@ impl eframe::App for FractalGl {
     }
 }
 
-impl FractalGl {
+impl FractalApp {
     fn custom_painting(&mut self, ui: &mut egui::Ui) {
         let (rect, response) =
             ui.allocate_exact_size(ui.available_size(), egui::Sense::click_and_drag());

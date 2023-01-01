@@ -1,11 +1,11 @@
 use super::State;
 
-pub struct Fractal {
+pub struct FractalGl {
     program: glow::Program,
     vertex_array: glow::VertexArray,
 }
 
-impl Fractal {
+impl FractalGl {
     pub fn new(gl: &glow::Context) -> Self {
         use glow::HasContext as _;
         unsafe {
