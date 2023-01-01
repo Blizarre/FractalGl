@@ -7,20 +7,20 @@ use eframe::{
     epaint::Vec2,
 };
 
-pub struct ClickPanel<'a> {
+pub struct DragPanel<'a> {
     x: &'a mut f32,
     y: &'a mut f32,
     range: Vec2,
 }
 
-impl<'a> ClickPanel<'a> {
+impl<'a> DragPanel<'a> {
     pub fn new(
         x: &'a mut f32,
         y: &'a mut f32,
         x_range: RangeInclusive<f32>,
         y_range: RangeInclusive<f32>,
-    ) -> ClickPanel<'a> {
-        ClickPanel {
+    ) -> DragPanel<'a> {
+        DragPanel {
             x,
             y,
             range: Vec2::new(
@@ -31,7 +31,7 @@ impl<'a> ClickPanel<'a> {
     }
 }
 
-impl<'a> Widget for ClickPanel<'a> {
+impl<'a> Widget for DragPanel<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
         let square_size = Vec2::new(ui.available_width(), ui.available_width()) * 0.9;
         Frame::canvas(ui.style())
