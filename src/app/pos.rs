@@ -1,5 +1,5 @@
-use std::ops::{Div, Sub};
 use eframe::epaint::Pos2;
+use std::ops::{Div, Sub};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Pos {

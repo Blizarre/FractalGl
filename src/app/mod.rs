@@ -171,4 +171,3 @@ impl FractalApp {
         ui.painter().add(callback);
     }
 }
-
