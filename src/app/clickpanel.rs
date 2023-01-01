@@ -2,7 +2,8 @@ use log::info;
 use std::ops::RangeInclusive;
 
 use eframe::{
-    egui::{Frame, Response, Sense, Ui, Widget},
+    egui::{Frame, Layout, Response, Sense, Ui, Widget},
+    emath::Align,
     epaint::Vec2,
 };
 
@@ -29,22 +30,25 @@ impl<'a> ClickPanel<'a> {
         }
     }
 }
+
 impl<'a> Widget for ClickPanel<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
         let square_size = Vec2::new(ui.available_width(), ui.available_width()) * 0.9;
         Frame::canvas(ui.style())
             .show(ui, |ui| {
-                let (rect, resp) = ui.allocate_exact_size(square_size, Sense::drag());
-                if resp.dragged() {
-                    let points_delta = resp.drag_delta();
-                    let values_delta = (points_delta / rect.width()) * self.range;
-                    info!(
-                        "ClickPanel dragged {:?} points, change to x,y {:?}",
-                        points_delta, values_delta
-                    );
-                    *self.x += values_delta.x;
-                    *self.y += values_delta.y;
-                }
+                ui.with_layout(Layout::top_down(Align::Center), |ui| {
+                    let (rect, resp) = ui.allocate_exact_size(square_size, Sense::drag());
+                    if resp.dragged() {
+                        let points_delta = resp.drag_delta();
+                        let values_delta = (points_delta / rect.width()) * self.range;
+                        info!(
+                            "ClickPanel dragged {:?} points, change to x,y {:?}",
+                            points_delta, values_delta
+                        );
+                        *self.x += values_delta.x;
+                        *self.y += values_delta.y;
+                    }
+                });
             })
             .response
     }
