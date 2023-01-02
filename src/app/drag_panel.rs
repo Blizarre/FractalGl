@@ -2,8 +2,7 @@ use log::info;
 use std::ops::RangeInclusive;
 
 use eframe::{
-    egui::{Frame, Label, Layout, Response, Sense, Ui, Widget},
-    emath::Align,
+    egui::{Frame, Label, Response, Sense, Ui, Widget},
     epaint::Vec2,
 };
 
@@ -33,25 +32,23 @@ impl<'a> DragPanel<'a> {
 
 impl<'a> Widget for DragPanel<'a> {
     fn ui(self, ui: &mut Ui) -> Response {
-        let square_size = Vec2::new(ui.available_width(), ui.available_width()) * 0.9;
+        let square_size = Vec2::new(ui.available_width(), ui.available_width()) * 0.5;
         Frame::canvas(ui.style())
             .show(ui, |ui| {
-                ui.with_layout(Layout::top_down(Align::Center), |ui| {
-                    let resp = ui.add_sized(
-                        square_size,
-                        Label::new("Drag to fine tune").sense(Sense::drag()),
+                let resp = ui.add_sized(
+                    square_size,
+                    Label::new("Drag for fine tuning").sense(Sense::drag()),
+                );
+                if resp.dragged() {
+                    let points_delta = resp.drag_delta();
+                    let values_delta = (points_delta / resp.rect.width()) * self.range;
+                    info!(
+                        "ClickPanel dragged {:?} points, change to x,y {:?}",
+                        points_delta, values_delta
                     );
-                    if resp.dragged() {
-                        let points_delta = resp.drag_delta();
-                        let values_delta = (points_delta / resp.rect.width()) * self.range;
-                        info!(
-                            "ClickPanel dragged {:?} points, change to x,y {:?}",
-                            points_delta, values_delta
-                        );
-                        *self.x += values_delta.x;
-                        *self.y += values_delta.y;
-                    }
-                });
+                    *self.x += values_delta.x;
+                    *self.y += values_delta.y;
+                }
             })
             .response
     }

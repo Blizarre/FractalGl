@@ -1,4 +1,4 @@
-use eframe::egui::{self, PointerButton, Slider};
+use eframe::egui::{self, PointerButton, ScrollArea, Slider};
 use log::info;
 
 use egui::mutex::Mutex;
@@ -38,7 +38,7 @@ impl FractalApp {
 impl eframe::App for FractalApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::SidePanel::left("Settings").show(ctx, |ui| {
-            ui.vertical(|ui| {
+            ScrollArea::new([false, true]).show(ui, |ui| {
                 ui.add(
                     Slider::new(&mut self.state.zoom, 1.0..=5000.0)
                         .logarithmic(true)
@@ -77,8 +77,8 @@ impl eframe::App for FractalApp {
                     ui.add(DragPanel::new(
                         &mut self.state.contrast,
                         &mut self.state.brightness,
-                        -1.0..=1.0,
-                        -2.0..=2.0,
+                        -0.5..=0.5,
+                        -0.5..=0.5,
                     ));
 
                     ui.add(
