@@ -5,6 +5,9 @@ uniform float u_fractalZoom;
 uniform float u_brightness;
 uniform float u_contrast;
 uniform int u_highQuality;
+uniform float u_r;
+uniform float u_g;
+uniform float u_b;
 
 float computeLowQuality(in vec2 z)
 {
@@ -78,5 +81,5 @@ void main(void)
     else
         value = computeLowQuality(z);
 
-    out_color =  vec4( u_brightness + u_contrast * vec3(value, value, value) * vec3(0.8, 0.75, 1.0), 1.0);
+    out_color =  vec4( u_brightness + u_contrast * vec3(value, value, value) * vec3(u_r, u_g, u_b), 1.0);
 }

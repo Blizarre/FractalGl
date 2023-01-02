@@ -109,6 +109,24 @@ impl FractalGl {
                 0,
             );
 
+            gl.uniform_1_f32(
+                gl.get_uniform_location(self.program, "u_r")
+                    .as_ref(),
+                state.r,
+            );
+
+            gl.uniform_1_f32(
+                gl.get_uniform_location(self.program, "u_g")
+                    .as_ref(),
+                state.g,
+            );
+
+            gl.uniform_1_f32(
+                gl.get_uniform_location(self.program, "u_b")
+                    .as_ref(),
+                state.b,
+            );
+
             let u_fractal_position = gl.get_uniform_location(self.program, "u_fractalPosition");
             gl.uniform_2_f32(u_fractal_position.as_ref(), state.pos.x, state.pos.y);
 

@@ -9,6 +9,9 @@ pub struct State {
     pub color_expanded: bool,
     pub contrast: f32,
     pub brightness: f32,
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
 }
 
 impl State {
@@ -21,6 +24,9 @@ impl State {
             color_expanded: true,
             contrast: 0.3,
             brightness: -0.73,
+            r: 0.8,
+            g: 0.75,
+            b: 1.0,
         }
     }
 }

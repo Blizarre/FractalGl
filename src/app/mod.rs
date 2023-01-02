@@ -91,6 +91,21 @@ impl eframe::App for FractalApp {
                             .text("Brightness")
                             .clamp_to_range(false),
                     );
+                    ui.add(
+                        Slider::new(&mut self.state.r, 0.0..=1.0)
+                            .text("Red")
+                            .clamp_to_range(false),
+                    );
+                    ui.add(
+                        Slider::new(&mut self.state.g, 0.0..=1.0)
+                            .text("Green")
+                            .clamp_to_range(false),
+                    );
+                    ui.add(
+                        Slider::new(&mut self.state.b, 0.0..=1.0)
+                            .text("Blue")
+                            .clamp_to_range(false),
+                    );
                 }
                 ui.separator();
 
