@@ -1,4 +1,4 @@
-use eframe::egui::{self, PointerButton, ScrollArea, Slider};
+use eframe::egui::{self, CollapsingHeader, PointerButton, ScrollArea, Slider};
 use log::info;
 
 use egui::mutex::Mutex;
@@ -47,66 +47,67 @@ impl eframe::App for FractalApp {
 
                 ui.separator();
 
-                ui.toggle_value(&mut self.state.julia_expanded, "Julia parameters");
+                CollapsingHeader::new("Julia parameters")
+                    .default_open(true)
+                    .show(ui, |ui| {
+                        ui.add(DragPanel::new(
+                            &mut self.state.c_julia.x,
+                            &mut self.state.c_julia.y,
+                            -0.2..=0.2,
+                            -0.2..=0.2,
+                        ));
 
-                if self.state.julia_expanded {
-                    ui.add(DragPanel::new(
-                        &mut self.state.c_julia.x,
-                        &mut self.state.c_julia.y,
-                        -0.2..=0.2,
-                        -0.2..=0.2,
-                    ));
-
-                    ui.add(
-                        Slider::new(&mut self.state.c_julia.x, -1.0..=1.0)
-                            .text("Julia 1")
-                            .clamp_to_range(false),
-                    );
-                    ui.add(
-                        Slider::new(&mut self.state.c_julia.y, -1.0..=1.0)
-                            .text("Julia 2")
-                            .clamp_to_range(false),
-                    );
-                }
+                        ui.add(
+                            Slider::new(&mut self.state.c_julia.x, -1.0..=1.0)
+                                .text("Julia 1")
+                                .clamp_to_range(false),
+                        );
+                        ui.add(
+                            Slider::new(&mut self.state.c_julia.y, -1.0..=1.0)
+                                .text("Julia 2")
+                                .clamp_to_range(false),
+                        );
+                    });
 
                 ui.separator();
 
-                ui.toggle_value(&mut self.state.color_expanded, "Color parameters");
+                CollapsingHeader::new("Color parameters")
+                    .default_open(true)
+                    .show(ui, |ui| {
+                        ui.add(DragPanel::new(
+                            &mut self.state.contrast,
+                            &mut self.state.brightness,
+                            -0.5..=0.5,
+                            -0.5..=0.5,
+                        ));
 
-                if self.state.color_expanded {
-                    ui.add(DragPanel::new(
-                        &mut self.state.contrast,
-                        &mut self.state.brightness,
-                        -0.5..=0.5,
-                        -0.5..=0.5,
-                    ));
+                        ui.add(
+                            Slider::new(&mut self.state.contrast, -1.0..=1.0)
+                                .text("Contrast")
+                                .clamp_to_range(false),
+                        );
+                        ui.add(
+                            Slider::new(&mut self.state.brightness, -2.0..=2.0)
+                                .text("Brightness")
+                                .clamp_to_range(false),
+                        );
+                        ui.add(
+                            Slider::new(&mut self.state.r, 0.0..=1.0)
+                                .text("Red")
+                                .clamp_to_range(false),
+                        );
+                        ui.add(
+                            Slider::new(&mut self.state.g, 0.0..=1.0)
+                                .text("Green")
+                                .clamp_to_range(false),
+                        );
+                        ui.add(
+                            Slider::new(&mut self.state.b, 0.0..=1.0)
+                                .text("Blue")
+                                .clamp_to_range(false),
+                        );
+                    });
 
-                    ui.add(
-                        Slider::new(&mut self.state.contrast, -1.0..=1.0)
-                            .text("Contrast")
-                            .clamp_to_range(false),
-                    );
-                    ui.add(
-                        Slider::new(&mut self.state.brightness, -2.0..=2.0)
-                            .text("Brightness")
-                            .clamp_to_range(false),
-                    );
-                    ui.add(
-                        Slider::new(&mut self.state.r, 0.0..=1.0)
-                            .text("Red")
-                            .clamp_to_range(false),
-                    );
-                    ui.add(
-                        Slider::new(&mut self.state.g, 0.0..=1.0)
-                            .text("Green")
-                            .clamp_to_range(false),
-                    );
-                    ui.add(
-                        Slider::new(&mut self.state.b, 0.0..=1.0)
-                            .text("Blue")
-                            .clamp_to_range(false),
-                    );
-                }
                 ui.separator();
 
                 if ui.button("Exit").clicked() {
