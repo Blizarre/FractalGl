@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'gui_test'",
+            "name": "Debug executable 'fractal_gl'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=gui_test",
-                    "--package=gui_test"
+                    "--bin=fractal_gl",
+                    "--package=fractal_gl"
                 ],
                 "filter": {
-                    "name": "gui_test",
+                    "name": "fractal_gl",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'gui_test'",
+            "name": "Debug unit tests in executable 'fractal_gl'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=gui_test",
-                    "--package=gui_test"
+                    "--bin=fractal_gl",
+                    "--package=fractal_gl"
                 ],
                 "filter": {
-                    "name": "gui_test",
+                    "name": "fractal_gl",
                     "kind": "bin"
                 }
             },
