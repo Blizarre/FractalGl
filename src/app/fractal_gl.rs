@@ -83,52 +83,28 @@ impl FractalGl {
         unsafe {
             gl.use_program(Some(self.program));
 
-            let c_julia = gl.get_uniform_location(self.program, "u_cJulia");
-            gl.uniform_2_f32(c_julia.as_ref(), state.c_julia.x, state.c_julia.y);
+            let mappings = [
+                ("u_fractalZoom", state.zoom),
+                ("u_brightness", state.brightness),
+                ("u_contrast", state.contrast),
+                ("u_highQuality", 0.0),
+                ("u_r", state.r),
+                ("u_g", state.g),
+                ("u_b", state.b),
+            ];
 
-            gl.uniform_1_f32(
-                gl.get_uniform_location(self.program, "u_fractalZoom")
-                    .as_ref(),
-                state.zoom,
-            );
-
-            gl.uniform_1_f32(
-                gl.get_uniform_location(self.program, "u_brightness")
-                    .as_ref(),
-                state.brightness,
-            );
-
-            gl.uniform_1_f32(
-                gl.get_uniform_location(self.program, "u_contrast").as_ref(),
-                state.contrast,
-            );
-
-            gl.uniform_1_i32(
-                gl.get_uniform_location(self.program, "u_highQuality")
-                    .as_ref(),
-                0,
-            );
-
-            gl.uniform_1_f32(
-                gl.get_uniform_location(self.program, "u_r")
-                    .as_ref(),
-                state.r,
-            );
-
-            gl.uniform_1_f32(
-                gl.get_uniform_location(self.program, "u_g")
-                    .as_ref(),
-                state.g,
-            );
-
-            gl.uniform_1_f32(
-                gl.get_uniform_location(self.program, "u_b")
-                    .as_ref(),
-                state.b,
-            );
+            for (label, value) in mappings.iter() {
+                gl.uniform_1_f32(
+                    gl.get_uniform_location(self.program, label).as_ref(),
+                    *value,
+                );
+            }
 
             let u_fractal_position = gl.get_uniform_location(self.program, "u_fractalPosition");
             gl.uniform_2_f32(u_fractal_position.as_ref(), state.pos.x, state.pos.y);
+
+            let c_julia = gl.get_uniform_location(self.program, "u_cJulia");
+            gl.uniform_2_f32(c_julia.as_ref(), state.c_julia.x, state.c_julia.y);
 
             gl.bind_vertex_array(Some(self.vertex_array));
             gl.draw_arrays(glow::TRIANGLES, 0, 6);
