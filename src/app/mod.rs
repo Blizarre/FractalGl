@@ -7,8 +7,8 @@ use std::sync::Arc;
 mod state;
 pub use state::State;
 
-mod pos;
-pub use pos::Pos;
+mod position;
+pub use position::Position;
 
 mod drag_panel;
 use drag_panel::DragPanel;
@@ -151,19 +151,19 @@ impl FractalApp {
         } else if response.clicked_by(PointerButton::Primary) {
             let pixels_per_point = ui.ctx().pixels_per_point();
 
-            let new_center_screen = Pos::from_screen_space(
+            let new_center_screen = Position::from_screen_space(
                 pixels_per_point,
                 response.interact_pointer_pos().expect("Non mais quoi...."),
             );
-            let current_center = Pos::from_screen_space(pixels_per_point, rect.center());
+            let current_center = Position::from_screen_space(pixels_per_point, rect.center());
             let diff_gl_space = (current_center - new_center_screen) / self.state.zoom;
 
             info!(
                 "new_center_screen: {:?}, current_center: {:?}, diff gl space: {:?}",
                 new_center_screen, current_center, diff_gl_space
             );
-            self.state.pos.x += diff_gl_space.x;
-            self.state.pos.y -= diff_gl_space.y;
+            self.state.position.x += diff_gl_space.x;
+            self.state.position.y -= diff_gl_space.y;
         } else if response.double_clicked_by(PointerButton::Secondary) {
             let old_zoom_level = self.state.zoom;
             self.state.zoom /= 1.2;
@@ -177,8 +177,8 @@ impl FractalApp {
             let drag_in_gl_space = response.drag_delta() * response.ctx.pixels_per_point();
             info!("Dragged: {:?} pixels ", drag_in_gl_space);
 
-            self.state.pos.x += drag_in_gl_space.x / self.state.zoom;
-            self.state.pos.y -= drag_in_gl_space.y / self.state.zoom;
+            self.state.position.x += drag_in_gl_space.x / self.state.zoom;
+            self.state.position.y -= drag_in_gl_space.y / self.state.zoom;
         }
 
         // Clone locals so we can move them into the paint callback:

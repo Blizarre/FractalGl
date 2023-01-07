@@ -102,7 +102,7 @@ impl FractalGl {
             }
 
             let u_fractal_position = gl.get_uniform_location(self.program, "u_fractalPosition");
-            gl.uniform_2_f32(u_fractal_position.as_ref(), state.pos.x, state.pos.y);
+            gl.uniform_2_f32(u_fractal_position.as_ref(), state.position.x, state.position.y);
 
             let c_julia = gl.get_uniform_location(self.program, "u_cJulia");
             gl.uniform_2_f32(c_julia.as_ref(), state.c_julia.x, state.c_julia.y);

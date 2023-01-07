@@ -1,9 +1,11 @@
-use super::pos::Pos;
+use emath::Vec2;
+
+use super::position::Position;
 
 #[derive(Clone, Copy, Debug)]
 pub struct State {
-    pub pos: Pos,
-    pub c_julia: Pos,
+    pub position: Position,
+    pub c_julia: Vec2,
     pub zoom: f32,
     pub contrast: f32,
     pub brightness: f32,
@@ -16,8 +18,8 @@ pub struct State {
 impl State {
     pub fn new() -> State {
         State {
-            pos: Pos { x: 0.0, y: 0.0 },
-            c_julia: Pos { x: -0.76, y: -0.08 },
+            position: Position { x: 0.0, y: 0.0 },
+            c_julia: Vec2::new(-0.76, -0.08),
             zoom: 3000.0,
             contrast: 0.35,
             brightness: 0.0,
