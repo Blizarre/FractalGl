@@ -10,6 +10,7 @@ pub struct State {
     pub r: f32,
     pub g: f32,
     pub b: f32,
+    pub gamma: f32,
 }
 
 impl State {
@@ -18,11 +19,12 @@ impl State {
             pos: Pos { x: 0.0, y: 0.0 },
             c_julia: Pos { x: -0.76, y: -0.08 },
             zoom: 3000.0,
-            contrast: 0.3,
-            brightness: -0.73,
-            r: 0.8,
-            g: 0.75,
+            contrast: 0.35,
+            brightness: 0.0,
+            r: 0.16,
+            g: 0.40,
             b: 1.0,
+            gamma: 1.25,
         }
     }
 }

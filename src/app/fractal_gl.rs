@@ -86,6 +86,7 @@ impl FractalGl {
             let mappings = [
                 ("u_fractalZoom", state.zoom),
                 ("u_brightness", state.brightness),
+                ("u_gamma", state.gamma),
                 ("u_contrast", state.contrast),
                 ("u_highQuality", 0.0),
                 ("u_r", state.r),

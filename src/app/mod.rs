@@ -92,6 +92,13 @@ impl eframe::App for FractalApp {
                                 .clamp_to_range(false),
                         );
                         ui.add(
+                            Slider::new(&mut self.state.gamma, 0.1..=3.0)
+                                .text("Gamma")
+                                .clamp_to_range(false),
+                        );
+                        ui.separator();
+
+                        ui.add(
                             Slider::new(&mut self.state.r, 0.0..=1.0)
                                 .text("Red")
                                 .clamp_to_range(false),
