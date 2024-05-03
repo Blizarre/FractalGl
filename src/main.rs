@@ -14,5 +14,6 @@ fn main() {
         "Custom 3D painting in eframe using glow",
         options,
         Box::new(|cc| Box::new(app::FractalApp::new(cc))),
-    );
+    )
+    .unwrap()
 }

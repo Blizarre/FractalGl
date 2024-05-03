@@ -37,7 +37,9 @@ impl<'a> Widget for DragPanel<'a> {
             .show(ui, |ui| {
                 let resp = ui.add_sized(
                     square_size,
-                    Label::new("Drag for fine tuning").sense(Sense::drag()),
+                    Label::new("Drag for fine tuning")
+                        .selectable(false)
+                        .sense(Sense::drag()),
                 );
                 if resp.dragged() {
                     let points_delta = resp.drag_delta();
