@@ -30,7 +30,7 @@ impl<'a> DragPanel<'a> {
     }
 }
 
-impl<'a> Widget for DragPanel<'a> {
+impl Widget for DragPanel<'_> {
     fn ui(self, ui: &mut Ui) -> Response {
         let square_size = Vec2::new(ui.available_width(), ui.available_width()) * 0.5;
         Frame::canvas(ui.style())

@@ -13,7 +13,7 @@ fn main() {
     eframe::run_native(
         "Custom 3D painting in eframe using glow",
         options,
-        Box::new(|cc| Box::new(app::FractalApp::new(cc))),
+        Box::new(|cc| Ok(Box::new(app::FractalApp::new(cc)))),
     )
     .unwrap()
 }

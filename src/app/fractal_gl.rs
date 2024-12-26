@@ -5,13 +5,13 @@ use super::State;
 use std::io::Read;
 
 pub struct FractalGl {
-    program: glow::Program,
-    vertex_array: glow::VertexArray,
+    program: eframe::glow::Program,
+    vertex_array: eframe::glow::VertexArray,
 }
 
 impl FractalGl {
-    pub fn new(gl: &glow::Context) -> Self {
-        use glow::HasContext as _;
+    pub fn new(gl: &eframe::glow::Context) -> Self {
+        use eframe::glow::HasContext as _;
         unsafe {
             let program = gl.create_program().expect("Cannot create program");
 
@@ -70,16 +70,16 @@ impl FractalGl {
         }
     }
 
-    pub fn destroy(&self, gl: &glow::Context) {
-        use glow::HasContext as _;
+    pub fn destroy(&self, gl: &eframe::glow::Context) {
+        use eframe::glow::HasContext as _;
         unsafe {
             gl.delete_program(self.program);
             gl.delete_vertex_array(self.vertex_array);
         }
     }
 
-    pub fn paint(&self, gl: &glow::Context, state: State) {
-        use glow::HasContext as _;
+    pub fn paint(&self, gl: &eframe::glow::Context, state: State) {
+        use eframe::glow::HasContext as _;
         unsafe {
             gl.use_program(Some(self.program));
 
@@ -102,7 +102,11 @@ impl FractalGl {
             }
 
             let u_fractal_position = gl.get_uniform_location(self.program, "u_fractalPosition");
-            gl.uniform_2_f32(u_fractal_position.as_ref(), state.position.x, state.position.y);
+            gl.uniform_2_f32(
+                u_fractal_position.as_ref(),
+                state.position.x,
+                state.position.y,
+            );
 
             let c_julia = gl.get_uniform_location(self.program, "u_cJulia");
             gl.uniform_2_f32(c_julia.as_ref(), state.c_julia.x, state.c_julia.y);

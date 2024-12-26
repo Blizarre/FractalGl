@@ -60,12 +60,12 @@ impl eframe::App for FractalApp {
                         ui.add(
                             Slider::new(&mut self.state.c_julia.x, -1.0..=1.0)
                                 .text("Julia 1")
-                                .clamp_to_range(false),
+                                .clamping(egui::SliderClamping::Never),
                         );
                         ui.add(
                             Slider::new(&mut self.state.c_julia.y, -1.0..=1.0)
                                 .text("Julia 2")
-                                .clamp_to_range(false),
+                                .clamping(egui::SliderClamping::Never),
                         );
                     });
 
@@ -84,34 +84,34 @@ impl eframe::App for FractalApp {
                         ui.add(
                             Slider::new(&mut self.state.contrast, -1.0..=1.0)
                                 .text("Contrast")
-                                .clamp_to_range(false),
+                                .clamping(egui::SliderClamping::Never),
                         );
                         ui.add(
                             Slider::new(&mut self.state.brightness, -2.0..=2.0)
                                 .text("Brightness")
-                                .clamp_to_range(false),
+                                .clamping(egui::SliderClamping::Never),
                         );
                         ui.add(
                             Slider::new(&mut self.state.gamma, 0.1..=3.0)
                                 .text("Gamma")
-                                .clamp_to_range(false),
+                                .clamping(egui::SliderClamping::Never),
                         );
                         ui.separator();
 
                         ui.add(
                             Slider::new(&mut self.state.r, 0.0..=1.0)
                                 .text("Red")
-                                .clamp_to_range(false),
+                                .clamping(egui::SliderClamping::Never),
                         );
                         ui.add(
                             Slider::new(&mut self.state.g, 0.0..=1.0)
                                 .text("Green")
-                                .clamp_to_range(false),
+                                .clamping(egui::SliderClamping::Never),
                         );
                         ui.add(
                             Slider::new(&mut self.state.b, 0.0..=1.0)
                                 .text("Blue")
-                                .clamp_to_range(false),
+                                .clamping(egui::SliderClamping::Never),
                         );
                     });
 
@@ -129,7 +129,7 @@ impl eframe::App for FractalApp {
         });
     }
 
-    fn on_exit(&mut self, gl: Option<&glow::Context>) {
+    fn on_exit(&mut self, gl: Option<&eframe::glow::Context>) {
         if let Some(gl) = gl {
             self.fractal.lock().destroy(gl);
         }
@@ -185,11 +185,13 @@ impl FractalApp {
         let data = self.state;
         let fractal = self.fractal.clone();
 
+        let callback = egui_glow::CallbackFn::new(move |_info, painter| {
+            fractal.lock().paint(painter.gl(), data);
+        });
+
         let callback = egui::PaintCallback {
             rect,
-            callback: std::sync::Arc::new(egui_glow::CallbackFn::new(move |_info, painter| {
-                fractal.lock().paint(painter.gl(), data);
-            })),
+            callback: Arc::new(callback),
         };
         ui.painter().add(callback);
     }
