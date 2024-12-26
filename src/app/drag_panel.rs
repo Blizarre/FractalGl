@@ -37,7 +37,7 @@ impl Widget for DragPanel<'_> {
             .show(ui, |ui| {
                 let resp = ui.add_sized(
                     square_size,
-                    Label::new("Drag for fine tuning")
+                    Label::new("Fine tuning")
                         .selectable(false)
                         .sense(Sense::drag()),
                 );

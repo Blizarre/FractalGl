@@ -39,11 +39,15 @@ impl eframe::App for FractalApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::SidePanel::left("Settings").show(ctx, |ui| {
             ScrollArea::new([false, true]).show(ui, |ui| {
-                ui.add(
-                    Slider::new(&mut self.state.zoom, 1.0..=5000.0)
-                        .logarithmic(true)
-                        .text("Zoom"),
-                );
+                CollapsingHeader::new("Global parameters")
+                    .default_open(true)
+                    .show(ui, |ui| {
+                        ui.add(
+                            Slider::new(&mut self.state.zoom, 1.0..=5000.0)
+                                .logarithmic(true)
+                                .text("Zoom"),
+                        );
+                    });
 
                 ui.separator();
 
