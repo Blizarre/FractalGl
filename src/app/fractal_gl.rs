@@ -4,26 +4,31 @@ use super::State;
 
 use std::io::Read;
 
+use anyhow::{anyhow, Context, Error, Result};
+use eframe::glow::NativeShader;
+
 pub struct FractalGl {
     program: eframe::glow::Program,
     vertex_array: eframe::glow::VertexArray,
 }
 
 impl FractalGl {
-    pub fn new(gl: &eframe::glow::Context) -> Self {
+    pub fn new(gl: &eframe::glow::Context) -> Result<Self> {
         use eframe::glow::HasContext as _;
         unsafe {
-            let program = gl.create_program().expect("Cannot create program");
+            let program = gl
+                .create_program()
+                .map_err(|e| anyhow!("Cannot create program: {}", e))?;
 
             let mut vertex_shader_source = String::new();
             File::open("assets/vertex.shader")
                 .and_then(|mut x| x.read_to_string(&mut vertex_shader_source))
-                .expect("Cannot read the Vertex Shaders");
+                .context("Cannot read the Vertex Shaders")?;
 
             let mut fragment_shader_source = String::new();
             File::open("assets/fragment.shader")
                 .and_then(|mut x| x.read_to_string(&mut fragment_shader_source))
-                .expect("Cannot read the Fragment Shaders");
+                .context("Cannot read the Fragment Shaders")?;
 
             let shader_sources = [
                 (glow::VERTEX_SHADER, vertex_shader_source),
@@ -35,7 +40,7 @@ impl FractalGl {
                 .map(|(shader_type, shader_source)| {
                     let shader = gl
                         .create_shader(*shader_type)
-                        .expect("Cannot create shader");
+                        .map_err(|e| anyhow!("Cannot create shader: {}", e) as Error)?;
                     gl.shader_source(shader, &format!("{}\n{}", "#version 330", shader_source));
                     gl.compile_shader(shader);
                     assert!(
@@ -45,9 +50,9 @@ impl FractalGl {
                         shader_source
                     );
                     gl.attach_shader(program, shader);
-                    shader
+                    Ok(shader)
                 })
-                .collect();
+                .collect::<Result<Vec<NativeShader>>>()?;
 
             gl.link_program(program);
             if !gl.get_program_link_status(program) {
@@ -61,12 +66,12 @@ impl FractalGl {
 
             let vertex_array = gl
                 .create_vertex_array()
-                .expect("Cannot create vertex array");
+                .map_err(|e| anyhow!("Cannot create vertex array: {}", e))?;
 
-            Self {
+            Ok(Self {
                 program,
                 vertex_array,
-            }
+            })
         }
     }
 

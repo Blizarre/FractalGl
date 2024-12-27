@@ -1,7 +1,7 @@
 use eframe::egui::{self, CollapsingHeader, PointerButton, ScrollArea, Slider};
 use log::info;
 
-use egui::mutex::Mutex;
+use egui::{mutex::Mutex, Pos2};
 use std::sync::Arc;
 
 mod state;
@@ -16,6 +16,8 @@ use drag_panel::DragPanel;
 mod fractal_gl;
 use fractal_gl::FractalGl;
 
+use anyhow::{self, Error, Result};
+
 pub struct FractalApp {
     /// Behind an `Arc<Mutex<…>>` so we can pass it to [`egui::PaintCallback`] and paint later.
     fractal: Arc<Mutex<FractalGl>>,
@@ -23,15 +25,15 @@ pub struct FractalApp {
 }
 
 impl FractalApp {
-    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+    pub fn new(cc: &eframe::CreationContext<'_>) -> Result<Self> {
         let gl = cc
             .gl
             .as_ref()
-            .expect("You need to run eframe with the glow backend");
-        Self {
-            fractal: Arc::new(Mutex::new(FractalGl::new(gl))),
+            .ok_or(Error::msg("Glow context unavailable"))?;
+        Ok(Self {
+            fractal: Arc::new(Mutex::new(FractalGl::new(gl)?)),
             state: State::new(),
-        }
+        })
     }
 }
 
@@ -157,7 +159,9 @@ impl FractalApp {
 
             let new_center_screen = Position::from_screen_space(
                 pixels_per_point,
-                response.interact_pointer_pos().expect("Non mais quoi...."),
+                response
+                    .interact_pointer_pos()
+                    .unwrap_or(Pos2 { x: 0.0, y: 0.0 }),
             );
             let current_center = Position::from_screen_space(pixels_per_point, rect.center());
             let diff_gl_space = (current_center - new_center_screen) / self.state.zoom;
