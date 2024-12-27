@@ -1,7 +1,7 @@
 use eframe::egui::{self, CollapsingHeader, PointerButton, ScrollArea, Slider};
 use log::info;
 
-use egui::{mutex::Mutex, Pos2};
+use egui::{mutex::Mutex, Checkbox, Pos2};
 use std::sync::Arc;
 
 mod state;
@@ -47,8 +47,10 @@ impl eframe::App for FractalApp {
                         ui.add(
                             Slider::new(&mut self.state.zoom, 1.0..=5000.0)
                                 .logarithmic(true)
+                                .clamping(egui::SliderClamping::Never)
                                 .text("Zoom"),
                         );
+                        ui.add(Checkbox::new(&mut self.state.highquality, "High Quality"));
                     });
 
                 ui.separator();

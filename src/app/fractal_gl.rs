@@ -93,7 +93,6 @@ impl FractalGl {
                 ("u_brightness", state.brightness),
                 ("u_gamma", state.gamma),
                 ("u_contrast", state.contrast),
-                ("u_highQuality", 0.0),
                 ("u_r", state.r),
                 ("u_g", state.g),
                 ("u_b", state.b),
@@ -105,6 +104,12 @@ impl FractalGl {
                     *value,
                 );
             }
+
+            gl.uniform_1_i32(
+                gl.get_uniform_location(self.program, "u_highQuality")
+                    .as_ref(),
+                if state.highquality { 1 } else { 0 },
+            );
 
             let u_fractal_position = gl.get_uniform_location(self.program, "u_fractalPosition");
             gl.uniform_2_f32(

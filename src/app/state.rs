@@ -13,6 +13,7 @@ pub struct State {
     pub g: f32,
     pub b: f32,
     pub gamma: f32,
+    pub highquality: bool,
 }
 
 impl State {
@@ -27,6 +28,7 @@ impl State {
             g: 0.40,
             b: 1.0,
             gamma: 1.25,
+            highquality: true,
         }
     }
 }
