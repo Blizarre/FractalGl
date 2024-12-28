@@ -10,21 +10,18 @@ uniform float u_g;
 uniform float u_b;
 uniform float u_gamma;
 
-float computeLowQuality(in vec2 z)
-{
-    const int MAX_ITER = 1024;
-    const float N = 2.0;
 
+float julia_inner(in int max_iter, in float cutoff, inout vec2 z) {
     vec2 z2;
-    float tmp;
-    int iterNumber = MAX_ITER;
+    float tmp, value;
+    int iterNumber = max_iter;
 
     // start at 1, since Log(0) = NaN
-    for(int i = 1; i < MAX_ITER; i++)
+    for(int i = 1; i < max_iter; i++)
     {
         z2 = vec2(z.x * z.x, z.y * z.y); // z2x = zx * zx; z2y = zy * zy
 
-        if( (z2.x + z2.y) > N*N)
+        if( (z2.x + z2.y) > cutoff)
         {
                 iterNumber = i;
                 break;
@@ -34,8 +31,7 @@ float computeLowQuality(in vec2 z)
         z.y = 2.0 * z.x * z.y + u_cJulia.y;
         z.x = tmp;
     }
-
-    return log(float(iterNumber + 1));
+    return float(iterNumber + 1);
 }
 
 float computeHighQuality(in vec2 z)
@@ -43,31 +39,17 @@ float computeHighQuality(in vec2 z)
     const int MAX_ITER = 4096;
     const float N = 4.0;
 
-    vec2 z2;
-    float tmp, value;
-    int iterNumber = MAX_ITER;
-
-    // start at 1, since Log(0) = NaN
-    for(int i = 1; i < MAX_ITER; i++)
-    {
-        z2 = vec2(z.x * z.x, z.y * z.y); // z2x = zx * zx; z2y = zy * zy
-
-        if( (z2.x + z2.y) > N * N)
-        {
-                iterNumber = i;
-                break;
-        }
-
-        tmp = z2.x - z2.y + u_cJulia.x;
-        z.y = 2.0 * z.x * z.y + u_cJulia.y;
-        z.x = tmp;
-
-    }
-
     // Smoothing the fractal: result = IterNumber - log2( log( abs(z) / log(N) ) )
-    value = float(iterNumber + 1) - log2( log( sqrt( z.x * z.x + z.y * z.y )/log(N)) );
+    float value = julia_inner(MAX_ITER, N * N, z) - log2( log( sqrt( z.x * z.x + z.y * z.y )/log(N)) );
     return log(value);
+}
 
+float computeLowQuality(in vec2 z)
+{
+    const int MAX_ITER = 1024;
+    const float N = 2.0;
+
+    return log(julia_inner(MAX_ITER, N * N, z));
 }
 
 out vec4 out_color;
