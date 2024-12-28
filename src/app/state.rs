@@ -2,6 +2,13 @@ use emath::Vec2;
 
 use super::position::Position;
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum FractalType {
+    // Keep in sync with the fragment shader
+    Julia = 0,
+    Mandelbrot = 1,
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct State {
     pub position: Position,
@@ -13,7 +20,8 @@ pub struct State {
     pub g: f32,
     pub b: f32,
     pub gamma: f32,
-    pub highquality: bool,
+    pub high_quality: bool,
+    pub fractal_type: FractalType,
 }
 
 impl State {
@@ -28,7 +36,8 @@ impl State {
             g: 0.40,
             b: 1.0,
             gamma: 1.25,
-            highquality: true,
+            high_quality: true,
+            fractal_type: FractalType::Julia,
         }
     }
 }

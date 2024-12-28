@@ -108,7 +108,13 @@ impl FractalGl {
             gl.uniform_1_i32(
                 gl.get_uniform_location(self.program, "u_highQuality")
                     .as_ref(),
-                if state.highquality { 1 } else { 0 },
+                if state.high_quality { 1 } else { 0 },
+            );
+
+            gl.uniform_1_i32(
+                gl.get_uniform_location(self.program, "u_fractal_type")
+                    .as_ref(),
+                state.fractal_type as i32,
             );
 
             let u_fractal_position = gl.get_uniform_location(self.program, "u_fractalPosition");

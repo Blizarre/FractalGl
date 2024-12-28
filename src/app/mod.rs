@@ -1,11 +1,11 @@
 use eframe::egui::{self, CollapsingHeader, PointerButton, ScrollArea, Slider};
 use log::info;
 
-use egui::{mutex::Mutex, Checkbox, Pos2};
+use egui::{mutex::Mutex, ComboBox, Pos2};
 use std::sync::Arc;
 
 mod state;
-pub use state::State;
+pub use state::{FractalType, State};
 
 mod position;
 pub use position::Position;
@@ -50,35 +50,51 @@ impl eframe::App for FractalApp {
                                 .clamping(egui::SliderClamping::Never)
                                 .text("Zoom"),
                         );
-                        ui.add(Checkbox::new(&mut self.state.highquality, "High Quality"));
+                        ui.checkbox(&mut self.state.high_quality, "High Quality");
+
+                        ComboBox::from_label("Type")
+                            .selected_text(format!("{:?}", self.state.fractal_type))
+                            .show_ui(ui, |ui| {
+                                ui.selectable_value(
+                                    &mut self.state.fractal_type,
+                                    FractalType::Julia,
+                                    format!("{:?}", FractalType::Julia),
+                                );
+                                ui.selectable_value(
+                                    &mut self.state.fractal_type,
+                                    FractalType::Mandelbrot,
+                                    format!("{:?}", FractalType::Mandelbrot),
+                                );
+                            });
                     });
 
                 ui.separator();
 
-                CollapsingHeader::new("Julia parameters")
-                    .default_open(true)
-                    .show(ui, |ui| {
-                        ui.add(DragPanel::new(
-                            &mut self.state.c_julia.x,
-                            &mut self.state.c_julia.y,
-                            -0.2..=0.2,
-                            -0.2..=0.2,
-                        ));
+                if self.state.fractal_type == FractalType::Julia {
+                    CollapsingHeader::new("Julia parameters")
+                        .default_open(true)
+                        .show(ui, |ui| {
+                            ui.add(DragPanel::new(
+                                &mut self.state.c_julia.x,
+                                &mut self.state.c_julia.y,
+                                -0.2..=0.2,
+                                -0.2..=0.2,
+                            ));
 
-                        ui.add(
-                            Slider::new(&mut self.state.c_julia.x, -1.0..=1.0)
-                                .text("Julia 1")
-                                .clamping(egui::SliderClamping::Never),
-                        );
-                        ui.add(
-                            Slider::new(&mut self.state.c_julia.y, -1.0..=1.0)
-                                .text("Julia 2")
-                                .clamping(egui::SliderClamping::Never),
-                        );
-                    });
+                            ui.add(
+                                Slider::new(&mut self.state.c_julia.x, -1.0..=1.0)
+                                    .text("Julia 1")
+                                    .clamping(egui::SliderClamping::Never),
+                            );
+                            ui.add(
+                                Slider::new(&mut self.state.c_julia.y, -1.0..=1.0)
+                                    .text("Julia 2")
+                                    .clamping(egui::SliderClamping::Never),
+                            );
+                        });
 
-                ui.separator();
-
+                    ui.separator();
+                }
                 CollapsingHeader::new("Color parameters")
                     .default_open(true)
                     .show(ui, |ui| {
