@@ -1,7 +1,7 @@
 use eframe::egui::{self, CollapsingHeader, PointerButton, ScrollArea, Slider};
 use log::info;
 
-use egui::{mutex::Mutex, ComboBox, Pos2, Vec2};
+use egui::{mutex::Mutex, ComboBox, Pos2};
 use std::sync::Arc;
 
 mod state;
