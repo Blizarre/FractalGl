@@ -1,7 +1,7 @@
 use eframe::egui::{self, CollapsingHeader, PointerButton, ScrollArea, Slider};
 use log::info;
 
-use egui::{mutex::Mutex, ComboBox, Pos2};
+use egui::{mutex::Mutex, ComboBox, Pos2, Vec2};
 use std::sync::Arc;
 
 mod state;
@@ -165,7 +165,12 @@ impl FractalApp {
         let (rect, response) =
             ui.allocate_exact_size(ui.available_size(), egui::Sense::click_and_drag());
 
-        if response.double_clicked_by(PointerButton::Primary) {
+        let scroll_delta = ui.input(|i| i.smooth_scroll_delta);
+        if scroll_delta.y > 0.0 {
+            self.state.zoom *= 1.1;
+        } else if scroll_delta.y < 0.0 {
+            self.state.zoom *= 0.9;
+        } else if response.double_clicked_by(PointerButton::Primary) {
             let old_zoom_level = self.state.zoom;
             self.state.zoom *= 1.2;
             info!(
