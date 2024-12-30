@@ -11,7 +11,7 @@ pub enum FractalType {
 
 #[derive(Clone, Copy, Debug)]
 pub struct State {
-    pub position: Position,
+    pub center_position: Position,
     pub c_julia: Vec2,
     pub zoom: f32,
     pub contrast: f32,
@@ -27,9 +27,9 @@ pub struct State {
 impl State {
     pub fn new() -> State {
         State {
-            position: Position { x: 0.0, y: 0.0 },
+            center_position: Position { x: 0.0, y: 0.0 },
             c_julia: Vec2::new(-0.76, -0.08),
-            zoom: 3000.0,
+            zoom: 1000.0,
             contrast: 0.35,
             brightness: 0.0,
             r: 0.16,

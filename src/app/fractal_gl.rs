@@ -6,6 +6,7 @@ use std::io::Read;
 
 use anyhow::{anyhow, Context, Error, Result};
 use eframe::glow::NativeShader;
+use egui::PaintCallbackInfo;
 
 pub struct FractalGl {
     program: eframe::glow::Program,
@@ -83,7 +84,7 @@ impl FractalGl {
         }
     }
 
-    pub fn paint(&self, gl: &eframe::glow::Context, state: State) {
+    pub fn paint(&self, gl: &eframe::glow::Context, state: State, paint_info: PaintCallbackInfo) {
         use eframe::glow::HasContext as _;
         unsafe {
             gl.use_program(Some(self.program));
@@ -117,11 +118,21 @@ impl FractalGl {
                 state.fractal_type as i32,
             );
 
+            // Not happy about needing to call this method here and pass around the paint_info,
+            // but ViewportInPixels (type of vieport) isn't publicly available so I couldn't find
+            // a way to pass it as argument, and creating a whole new type was a bit overkill.
+            let viewport = paint_info.viewport_in_pixels();
+
             let u_fractal_position = gl.get_uniform_location(self.program, "u_fractalPosition");
             gl.uniform_2_f32(
                 u_fractal_position.as_ref(),
-                state.position.x,
-                state.position.y,
+                // The viewport is
+                state.center_position.x
+                    + viewport.left_px as f32 / state.zoom // shift to skip the edge
+                    + 0.5 * viewport.width_px as f32 / state.zoom, // shift to put the center_position in the middle
+                state.center_position.y
+                    + viewport.top_px as f32 / state.zoom
+                    + 0.5 * viewport.height_px as f32 / state.zoom,
             );
 
             let c_julia = gl.get_uniform_location(self.program, "u_cJulia");

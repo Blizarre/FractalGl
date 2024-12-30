@@ -100,7 +100,7 @@ out vec4 out_color;
 
 void main(void)
 {
-    vec2 location = vec2( (gl_FragCoord.x/u_fractalZoom - u_fractalPosition.x), (gl_FragCoord.y/u_fractalZoom - u_fractalPosition.y) );
+    vec2 location = vec2(gl_FragCoord.x, gl_FragCoord.y)/u_fractalZoom - u_fractalPosition;
     float value;
 
     if(u_highQuality != 0)

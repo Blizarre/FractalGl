@@ -188,8 +188,8 @@ impl FractalApp {
                 "new_center_screen: {:?}, current_center: {:?}, diff gl space: {:?}",
                 new_center_screen, current_center, diff_gl_space
             );
-            self.state.position.x += diff_gl_space.x;
-            self.state.position.y -= diff_gl_space.y;
+            self.state.center_position.x += diff_gl_space.x;
+            self.state.center_position.y -= diff_gl_space.y;
         } else if response.double_clicked_by(PointerButton::Secondary) {
             let old_zoom_level = self.state.zoom;
             self.state.zoom /= 1.2;
@@ -203,16 +203,16 @@ impl FractalApp {
             let drag_in_gl_space = response.drag_delta() * response.ctx.pixels_per_point();
             info!("Dragged: {:?} pixels ", drag_in_gl_space);
 
-            self.state.position.x += drag_in_gl_space.x / self.state.zoom;
-            self.state.position.y -= drag_in_gl_space.y / self.state.zoom;
+            self.state.center_position.x += drag_in_gl_space.x / self.state.zoom;
+            self.state.center_position.y -= drag_in_gl_space.y / self.state.zoom;
         }
 
         // Clone locals so we can move them into the paint callback:
         let data = self.state;
         let fractal = self.fractal.clone();
 
-        let callback = egui_glow::CallbackFn::new(move |_info, painter| {
-            fractal.lock().paint(painter.gl(), data);
+        let callback = egui_glow::CallbackFn::new(move |info, painter| {
+            fractal.lock().paint(painter.gl(), data, info)
         });
 
         let callback = egui::PaintCallback {
